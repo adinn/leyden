@@ -154,16 +154,17 @@ class SCCEntry {
 public:
   enum Kind {
     None = 0,
-    Stub = 1,
-    Blob = 2,
-    Code = 3
+    Adapter = 1,
+    Stub = 2,
+    Blob = 3,
+    Code = 4
   };
 
 private:
   SCCEntry* _next;
   Method*   _method;
   Kind   _kind;        //
-  uint   _id;          // vmIntrinsic::ID for stub or name's hash for nmethod
+  uint   _id;          // encoded id enum for stub/blob or name/fingerprint hash for nmethod/adapter
 
   uint   _offset;      // Offset to entry
   uint   _size;        // Entry size
@@ -279,6 +280,7 @@ private:
 
   bool _extrs_complete;
   bool _early_stubs_complete;
+  bool _shared_blobs_complete;
   bool _complete;
   bool _opto_complete;
   bool _early_c1_complete;
@@ -291,6 +293,7 @@ public:
     _blobs_addr = nullptr;
     _extrs_complete = false;
     _early_stubs_complete = false;
+    _shared_blobs_complete = false;
     _complete = false;
     _opto_complete = false;
     _early_c1_complete = false;
@@ -299,7 +302,8 @@ public:
   ~SCAddressTable();
   void init_extrs();
   void init_early_stubs();
-  void init();
+  void init_shared_blobs();
+  void init_stubs();
   void init_opto();
   void init_early_c1();
   void init_c1();
@@ -363,6 +367,8 @@ public:
 
   bool compile(ciEnv* env, ciMethod* target, int entry_bci, AbstractCompiler* compiler);
   bool compile_blob(CodeBuffer* buffer, const char* name, OopMapSet* &oop_maps, GrowableArray<int>* extra_args);
+
+  bool compile_adapter(CodeBuffer* buffer, const char* name, uint32_t offsets[4]);
 
   Klass* read_klass(const methodHandle& comp_method, bool shared);
   Method* read_method(const methodHandle& comp_method, bool shared);
@@ -477,7 +483,8 @@ public:
 
   static void init_extrs_table();
   static void init_early_stubs_table();
-  static void init_table();
+  static void init_shared_blobs_table();
+  static void init_stubs_table();
   static void init_opto_table();
   static void init_early_c1_table();
   static void init_c1_table();
@@ -537,6 +544,9 @@ public:
   static bool load_opto_blob(CodeBuffer* buffer, OptoRuntime::StubID id, const char* name, OopMapSet* &oop_maps, GrowableArray<int>* extra_args = nullptr);
   static bool store_opto_blob(CodeBuffer* buffer, OptoRuntime::StubID id, const char* name, OopMapSet* oop_maps, GrowableArray<int>* extra_args = nullptr);
 #endif
+
+  static bool load_adapter(CodeBuffer* buffer, uint32_t id, const char* basic_sig, uint32_t offsets[4]);
+  static bool store_adapter(CodeBuffer* buffer, uint32_t id, const char* basic_sig, uint32_t offsets[4]);
 
 private:
   static bool load_blob(CodeBuffer* buffer, uint32_t id, const char* name, OopMapSet* &oop_maps, GrowableArray<int>* extra_args, CompLevel comp_level);

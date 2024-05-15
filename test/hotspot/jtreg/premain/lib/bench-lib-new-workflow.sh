@@ -53,6 +53,15 @@
 #     HEAP_SIZE
 #     RUNS
 #     REPEAT
+#
+#     LEYDEN_CALLER_OPTS
+#       extra args to be added to Leyden JVM runs
+#       e.g. LEYDEN_CALLER_OPTS='-Xlog:scc=error'
+#     TASKSET
+#       allows pinning of perf runs to specific processors
+#       e.g. setting TASKSET='taskest 0xff0' will execute
+#       benchmark runs as
+#         "taskest 0xff0 perf stat -r $REPEAT $JAVA ... $APP $CMDLINE"
 
 # The number of the outer loop
 if test "$RUNS" = ""; then
@@ -73,7 +82,7 @@ fi
 # $ cd test/hotspot/jtreg/premain/javac_helloworld
 # $ bash run.sh .../mainline/images/jdk/bin/java .../leyden/images/jdk/bin/java
 # 
-===report.csv================================================
+# ===report.csv================================================
 # Run,1_xoff,1_xon,2_xoff,2_xon,2_td,2_aot
 # 1,245.95000,165.35000,253.3000,135.85000,114.08000,80.13000
 # 2,255.98000,172.27000,249.61000,131.03000,111.25000,92.39000
@@ -191,10 +200,10 @@ function dump_one_jvm () {
     if $JAVA --version > /dev/null; then
         if $JAVA -XX:+PrintFlagsFinal --version | grep ArchiveInvokeDynamic > /dev/null; then
             local is_premain=1
-            local type_msg="(premain 1 step)"
+            local type_msg="(premain )"
         else
             local is_premain=0
-            local type_msg="(mainline      )"
+            local type_msg="(mainline)"
         fi
     else
         echo "$JAVA doesn't seem to be a real JVM"

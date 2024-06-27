@@ -563,7 +563,7 @@ class StubGenerator: public StubCodeGenerator {
     __ br(Assembler::AL, exit);
 
     address end = __ pc();
-    setup_stub_archive_data(stubId, start, end, return_address);
+    setup_stub_archive_data(stubId, stub_name, start, end, return_address);
 
     return start;
   }
@@ -628,7 +628,7 @@ class StubGenerator: public StubCodeGenerator {
            "_call_stub_return_address must have been generated before");
     __ b(StubRoutines::_call_stub_return_address);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
    return start;
   }
@@ -730,7 +730,7 @@ class StubGenerator: public StubCodeGenerator {
     __ verify_oop(r0);
     __ br(r19);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -803,7 +803,7 @@ class StubGenerator: public StubCodeGenerator {
     __ blr(rscratch1);
     __ hlt(0);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -841,7 +841,7 @@ class StubGenerator: public StubCodeGenerator {
     __ emit_data64(0x0000000000000000, relocInfo::none); // 0.0d
     __ emit_data64(0x3FF0000000000000, relocInfo::none); // 1.0d
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -920,7 +920,7 @@ class StubGenerator: public StubCodeGenerator {
 
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -1099,7 +1099,6 @@ class StubGenerator: public StubCodeGenerator {
     assert_different_registers(s, d, count, rscratch1, rscratch2);
 
     Label again, drain;
-    const char *stub_name;
 
     __ align(CodeEntryAlignment);
 
@@ -1410,7 +1409,7 @@ class StubGenerator: public StubCodeGenerator {
     // see comment above explaining why we do not need ot return a
     // start address
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
   }
 
   // Small copy: less than 16 bytes.
@@ -1829,7 +1828,7 @@ class StubGenerator: public StubCodeGenerator {
     __ ret(lr);
 
     address end = __ pc();
-    setup_stub_archive_data(stubId, start, end, (entry != nullptr ? *entry : nullptr));
+    setup_stub_archive_data(stubId, name, start, end, (entry != nullptr ? *entry : nullptr));
 
     return start;
   }
@@ -1911,7 +1910,7 @@ class StubGenerator: public StubCodeGenerator {
     __ ret(lr);
 
     address end = __ pc();
-    setup_stub_archive_data(stubId, start, end, (entry != nullptr ? *entry : nullptr));
+    setup_stub_archive_data(stubId, name, start, end, (entry != nullptr ? *entry : nullptr));
 
     return start;
 }
@@ -2323,7 +2322,7 @@ class StubGenerator: public StubCodeGenerator {
     __ ret(lr);
 
     address end = __ pc();
-    setup_stub_archive_data(stubId, start, end, (entry != nullptr ? *entry : nullptr));
+    setup_stub_archive_data(stubId, name, start, end, (entry != nullptr ? *entry : nullptr));
 
     return start;
   }
@@ -2430,7 +2429,7 @@ class StubGenerator: public StubCodeGenerator {
     __ lsr(count, count, LogBytesPerLong);   // size => long_count
     __ b(long_copy_entry);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, name, start, __ pc());
 
     return start;
   }
@@ -2721,7 +2720,7 @@ class StubGenerator: public StubCodeGenerator {
     __ leave();   // required for proper stackwalking of RuntimeStub frame
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, name, start, __ pc());
 
     return start;
   }
@@ -2880,7 +2879,7 @@ class StubGenerator: public StubCodeGenerator {
     __ leave();
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, name, start, __ pc());
 
     return start;
   }
@@ -2908,7 +2907,7 @@ class StubGenerator: public StubCodeGenerator {
     __ leave();
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -2942,7 +2941,7 @@ class StubGenerator: public StubCodeGenerator {
     __ leave();
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -3121,7 +3120,7 @@ class StubGenerator: public StubCodeGenerator {
     __ leave();
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -3166,7 +3165,7 @@ class StubGenerator: public StubCodeGenerator {
     __ leave();
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -3282,7 +3281,7 @@ class StubGenerator: public StubCodeGenerator {
       __ leave();
       __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
       return start;
   }
@@ -3402,7 +3401,7 @@ class StubGenerator: public StubCodeGenerator {
       __ leave();
       __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -3696,7 +3695,7 @@ class StubGenerator: public StubCodeGenerator {
     __ strw(used, Address(used_ptr));
     __ b(large_block_return);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -3837,7 +3836,7 @@ class StubGenerator: public StubCodeGenerator {
     __ leave(); // required for proper stackwalking of RuntimeStub frame
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc(), entry);
+    setup_stub_archive_data(stubId, stub_name, start, __ pc(), entry);
 
      return entry;
   }
@@ -3949,8 +3948,6 @@ class StubGenerator: public StubCodeGenerator {
     StubRoutines::StubID stubId = (multi_block
                                    ? StubRoutines::StubID::md5_implCompressMB_id
                                    : StubRoutines::StubID::md5_implCompress_id);
-    const char* stub_name = "cipherBlockChaining_decryptAESCrypt";
-  
     if (find_archive_data(stubId)) {
       address start = nullptr;
       address end = nullptr;
@@ -4087,7 +4084,7 @@ class StubGenerator: public StubCodeGenerator {
 
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, name, start, __ pc());
 
     return start;
   }
@@ -4191,7 +4188,7 @@ class StubGenerator: public StubCodeGenerator {
     __ emit_int32(0x8f1bbcdc);
     __ emit_int32(0xca62c1d6);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, name, start, __ pc());
 
     return start;
   }
@@ -4300,7 +4297,7 @@ class StubGenerator: public StubCodeGenerator {
 
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, name, start, __ pc());
 
     return start;
   }
@@ -4458,7 +4455,7 @@ class StubGenerator: public StubCodeGenerator {
 
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, name, start, __ pc());
 
     return start;
   }
@@ -4684,7 +4681,7 @@ class StubGenerator: public StubCodeGenerator {
 
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, name, start, __ pc());
 
     return start;
   }
@@ -4736,7 +4733,7 @@ class StubGenerator: public StubCodeGenerator {
     __ leave(); // required for proper stackwalking of RuntimeStub frame
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -4877,7 +4874,7 @@ class StubGenerator: public StubCodeGenerator {
     __ leave();
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc(), entry);
+    setup_stub_archive_data(stubId, stub_name, start, __ pc(), entry);
 
     return entry;
   }
@@ -4930,7 +4927,7 @@ class StubGenerator: public StubCodeGenerator {
     __ leave(); // required for proper stackwalking of RuntimeStub frame
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -5127,7 +5124,7 @@ class StubGenerator: public StubCodeGenerator {
 
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -5217,7 +5214,7 @@ class StubGenerator: public StubCodeGenerator {
     __ leave(); // required for proper stackwalking of RuntimeStub frame
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -5266,7 +5263,7 @@ class StubGenerator: public StubCodeGenerator {
     __ leave();
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -5299,7 +5296,7 @@ class StubGenerator: public StubCodeGenerator {
     __ leave();
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -5433,7 +5430,7 @@ class StubGenerator: public StubCodeGenerator {
     __ BIND(Exit);
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -5555,7 +5552,7 @@ class StubGenerator: public StubCodeGenerator {
     __ BIND(Exit);
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -5735,7 +5732,7 @@ class StubGenerator: public StubCodeGenerator {
     __ sub(result, result, len);
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, entry, __ pc(), count_positives_long);
+    setup_stub_archive_data(stubId, stub_name, entry, __ pc(), count_positives_long);
 
     return entry;
   }
@@ -5927,7 +5924,7 @@ class StubGenerator: public StubCodeGenerator {
     __ leave();
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, entry, __ pc());
+    setup_stub_archive_data(stubId, stub_name, entry, __ pc());
 
     return entry;
   }
@@ -5959,7 +5956,7 @@ class StubGenerator: public StubCodeGenerator {
         (address)StubRoutines::aarch64::_dsin_coef,
         (address)StubRoutines::aarch64::_dcos_coef);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -6126,7 +6123,7 @@ class StubGenerator: public StubCodeGenerator {
     __ bind(DONE);
       __ ret(lr);
 
-    setup_stub_archive_data(stubId, entry, __ pc());
+    setup_stub_archive_data(stubId, stub_name, entry, __ pc());
 
       return entry;
   }
@@ -6152,7 +6149,7 @@ class StubGenerator: public StubCodeGenerator {
     __ flt16_to_flt(v0, r0, v1);
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, entry, __ pc());
+    setup_stub_archive_data(stubId, stub_name, entry, __ pc());
 
     return entry;
   }
@@ -6178,7 +6175,7 @@ class StubGenerator: public StubCodeGenerator {
     __ flt_to_flt16(r0, v0, v1);
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, entry, __ pc());
+    setup_stub_archive_data(stubId, stub_name, entry, __ pc());
 
     return entry;
   }
@@ -6248,7 +6245,7 @@ class StubGenerator: public StubCodeGenerator {
     __ mov(sp, rscratch1);
     __ br(rscratch2);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -6389,7 +6386,7 @@ class StubGenerator: public StubCodeGenerator {
     __ bind(LENGTH_DIFF);
       __ ret(lr);
 
-    setup_stub_archive_data(stubId, entry, __ pc());
+    setup_stub_archive_data(stubId, stub_name, entry, __ pc());
 
     return entry;
   }
@@ -6525,7 +6522,7 @@ class StubGenerator: public StubCodeGenerator {
     __ ret(lr);
 #undef LOAD_PAIR
 
-    setup_stub_archive_data(stubId, entry, __ pc());
+    setup_stub_archive_data(stubId, stub_name, entry, __ pc());
 
     return entry;
   }
@@ -6866,7 +6863,7 @@ class StubGenerator: public StubCodeGenerator {
       __ pop(spilled_regs, sp);
       __ ret(lr);
 
-    setup_stub_archive_data(stubId, entry, __ pc());
+    setup_stub_archive_data(stubId, stub_name, entry, __ pc());
 
     return entry;
   }
@@ -6948,7 +6945,7 @@ class StubGenerator: public StubCodeGenerator {
     __ bind(DONE);
       __ ret(lr);
 
-    setup_stub_archive_data(stubId, entry, __ pc());
+    setup_stub_archive_data(stubId, stub_name, entry, __ pc());
 
     return entry;
   }
@@ -7114,7 +7111,7 @@ class StubGenerator: public StubCodeGenerator {
 
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc(), small, wide);
+    setup_stub_archive_data(stubId, stub_name, start, __ pc(), small, wide);
 
     return wide;
   }
@@ -7254,7 +7251,7 @@ class StubGenerator: public StubCodeGenerator {
     __ BIND(Exit);
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -7498,7 +7495,7 @@ class StubGenerator: public StubCodeGenerator {
     __ leave();
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -7522,7 +7519,7 @@ class StubGenerator: public StubCodeGenerator {
     __ spin_wait();
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -7561,7 +7558,7 @@ class StubGenerator: public StubCodeGenerator {
     __ leave();
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -7592,7 +7589,7 @@ class StubGenerator: public StubCodeGenerator {
     __ lookup_secondary_supers_table_slow_path(r_super_klass, r_array_base, r_array_index, r_bitmap, temp1, result);
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -7855,7 +7852,7 @@ class StubGenerator: public StubCodeGenerator {
 
     assert(entries.length() == 15, "unexpected entry store count");
 
-    setup_stub_archive_data(stubId, first_entry, __ pc(), &entries);
+    setup_stub_archive_data(stubId, stub_name, first_entry, __ pc(), &entries);
   }
 #endif // LINUX
 
@@ -7972,7 +7969,7 @@ class StubGenerator: public StubCodeGenerator {
     address start = __ pc();
     generate_cont_thaw(Continuation::thaw_top);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -7996,7 +7993,7 @@ class StubGenerator: public StubCodeGenerator {
 
     generate_cont_thaw(Continuation::thaw_return_barrier);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -8019,7 +8016,7 @@ class StubGenerator: public StubCodeGenerator {
 
     generate_cont_thaw(Continuation::thaw_return_barrier_exception);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -8196,7 +8193,7 @@ class StubGenerator: public StubCodeGenerator {
     __ leave();
     __ ret(lr);
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -8224,7 +8221,7 @@ class StubGenerator: public StubCodeGenerator {
     __ blr(rscratch1);
     __ should_not_reach_here();
 
-    setup_stub_archive_data(stubId, start, __ pc());
+    setup_stub_archive_data(stubId, stub_name, start, __ pc());
 
     return start;
   }
@@ -9072,7 +9069,7 @@ class StubGenerator: public StubCodeGenerator {
     MontgomeryMultiplyGenerator g(_masm, /*squaring*/false);
     address entry = g.generate_multiply();
 
-    setup_stub_archive_data(stubId, start, _masm->pc(), entry);
+    setup_stub_archive_data(stubId, stub_name, start, _masm->pc(), entry);
 
     return entry;
   }
@@ -9096,7 +9093,7 @@ class StubGenerator: public StubCodeGenerator {
     // because it's faster for the sizes of modulus we care about.
     address entry = g.generate_multiply();
 
-    setup_stub_archive_data(stubId, start, _masm->pc(), entry);
+    setup_stub_archive_data(stubId, stub_name, start, _masm->pc(), entry);
 
     return entry;
   }
@@ -9161,6 +9158,10 @@ class StubGenerator: public StubCodeGenerator {
     if (VerifyOops) {
       StubRoutines::_verify_oop_subroutine_entry   = generate_verify_oop();
     }
+
+    // data cache line writeback
+    StubRoutines::_data_cache_writeback = generate_data_cache_writeback();
+    StubRoutines::_data_cache_writeback_sync = generate_data_cache_writeback_sync();
 
     // arraycopy stubs used by compilers
     generate_arraycopy_stubs();
@@ -9240,10 +9241,6 @@ class StubGenerator: public StubCodeGenerator {
         StubRoutines::_base64_encodeBlock = generate_base64_encodeBlock();
         StubRoutines::_base64_decodeBlock = generate_base64_decodeBlock();
     }
-
-    // data cache line writeback
-    StubRoutines::_data_cache_writeback = generate_data_cache_writeback();
-    StubRoutines::_data_cache_writeback_sync = generate_data_cache_writeback_sync();
 
     if (UseAESIntrinsics) {
       StubRoutines::_aescrypt_encryptBlock = generate_aescrypt_encryptBlock();

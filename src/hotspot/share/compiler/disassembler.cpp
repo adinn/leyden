@@ -611,6 +611,11 @@ void decode_env::print_address(address adr) {
       if (WizardMode) st->print(" " INTPTR_FORMAT, p2i(adr));
       return;
     }
+    if (is_grain_shift_address(adr)) {
+      st->print("grain_shift_address");
+      if (WizardMode) st->print(" " INTPTR_FORMAT, p2i(adr));
+      return;
+    }
   }
 
   if (_nm == nullptr) {

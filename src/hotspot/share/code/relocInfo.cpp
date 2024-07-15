@@ -748,6 +748,9 @@ void external_word_Relocation::fix_relocation_after_move(const CodeBuffer* src, 
     if (is_card_table_address(target())) {
       return;
     }
+    if (is_grain_shift_address(target())) {
+      return;
+    }
   }
 #endif
   postcond(src->section_index_of(target()) == CodeBuffer::SECT_NONE);

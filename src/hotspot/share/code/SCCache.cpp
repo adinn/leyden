@@ -3571,6 +3571,9 @@ void SCAddressTable::init() {
   if (bs->is_a(BarrierSet::CardTableBarrierSet)) {
     SET_ADDRESS(_extrs, ci_card_table_address_as<address>());
   }
+#if INCLUDE_G1GC
+  SET_ADDRESS(_extrs, &G1HeapRegion::LogOfHRGrainBytes);
+#endif
   SET_ADDRESS(_extrs, ThreadIdentifier::unsafe_offset());
   SET_ADDRESS(_extrs, Thread::current);
 

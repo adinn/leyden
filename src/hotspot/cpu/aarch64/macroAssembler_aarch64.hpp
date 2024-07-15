@@ -1410,6 +1410,9 @@ public:
   // Load the base of the cardtable byte map into reg.
   void load_byte_map_base(Register reg);
 
+  // Load the log of the region grain size into reg.
+  void load_region_grain_shift(Register reg);
+
   // Prolog generator routines to support switch between x86 code and
   // generated ARM code
 

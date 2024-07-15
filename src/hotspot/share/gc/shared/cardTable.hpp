@@ -211,6 +211,10 @@ public:
   void verify_region(MemRegion mr, CardValue val, bool val_equals) PRODUCT_RETURN;
   void verify_not_dirty_region(MemRegion mr) PRODUCT_RETURN;
   void verify_dirty_region(MemRegion mr) PRODUCT_RETURN;
+
+  // this is exposed via the card table because AOT barrier code may
+  // need to be able to load the value as a runtime constant
+  virtual address log_grain_bytes_field() { return nullptr; }
 };
 
 #endif // SHARE_GC_SHARED_CARDTABLE_HPP

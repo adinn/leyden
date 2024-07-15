@@ -5473,6 +5473,15 @@ void MacroAssembler::load_byte_map_base(Register reg) {
   }
 }
 
+void MacroAssembler::load_region_grain_shift(Register reg) {
+  // this should only be invoked when generating AOT code
+  assert(SCCache::is_on_for_write(), "must be");
+  // SCA needs relocation info for log_grain_bytes address
+  address field = ((CardTableBarrierSet*)(BarrierSet::barrier_set()))->card_table()->log_grain_bytes_field();
+  assert(field != 0, "GC must define a region grain size");
+  lea(reg, ExternalAddress(field));
+}
+
 void MacroAssembler::build_frame(int framesize) {
   assert(framesize >= 2 * wordSize, "framesize must include space for FP/LR");
   assert(framesize % (2*wordSize) == 0, "must preserve 2*wordSize alignment");

@@ -24,6 +24,9 @@
 
 #include "precompiled.hpp"
 #include "ci/ciUtilities.hpp"
+#if INCLUDE_G1GC
+#include "gc/g1/g1HeapRegion.hpp"
+#endif
 #include "gc/shared/cardTableBarrierSet.hpp"
 #include "gc/shared/cardTable.hpp"
 #include "gc/shared/collectedHeap.hpp"
@@ -59,3 +62,12 @@ bool is_card_table_address(address adr) {
   }
   return false;
 }
+
+#if INCLUDE_G1GC
+bool is_grain_shift_address(address adr) {
+  if (Universe::is_fully_initialized()) {
+    return adr == (address)&G1HeapRegion::LogOfHRGrainBytes;
+  }
+  return false;
+}
+#endif

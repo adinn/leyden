@@ -3421,6 +3421,10 @@ encode %{
     __ load_byte_map_base($dst$$Register);
   %}
 
+  enc_class aarch64_enc_mov_region_grain_shift(iRegP dst, immRegionGrainShift src) %{
+    __ load_region_grain_shift($dst$$Register);
+  %}
+
   enc_class aarch64_enc_mov_n(iRegN dst, immN src) %{
     Register dst_reg = as_Register($dst$$reg);
     address con = (address)$src$$constant;
@@ -4524,6 +4528,20 @@ operand immByteMapBase()
   // Get base of card map
   predicate(BarrierSet::barrier_set()->is_a(BarrierSet::CardTableBarrierSet) &&
             (CardTable::CardValue*)n->get_ptr() == ((CardTableBarrierSet*)(BarrierSet::barrier_set()))->card_table()->byte_map_base());
+  match(ConP);
+
+  op_cost(0);
+  format %{ %}
+  interface(CONST_INTER);
+%}
+
+// GC region grain shift field
+operand immRegionGrainShift()
+%{
+  // this is only appropriate when we are writing AOT code
+  predicate(StoreCachedCode &&
+            BarrierSet::barrier_set()->is_a(BarrierSet::CardTableBarrierSet) &&
+            ((address)(n->get_ptr()) == ((CardTableBarrierSet*)BarrierSet::barrier_set())->card_table()->log_grain_bytes_field()));
   match(ConP);
 
   op_cost(0);
@@ -6741,6 +6759,20 @@ instruct loadByteMapBase(iRegPNoSp dst, immByteMapBase con)
   format %{ "adr  $dst, $con\t# Byte Map Base" %}
 
   ins_encode(aarch64_enc_mov_byte_map_base(dst, con));
+
+  ins_pipe(ialu_imm);
+%}
+
+// Load Region Grain Shift Field
+
+instruct loadRegionGrainShift(iRegPNoSp dst, immRegionGrainShift con)
+%{
+  match(Set dst con);
+
+  ins_cost(INSN_COST);
+  format %{ "adr  $dst, $con\t# Region Grain Shift" %}
+
+  ins_encode(aarch64_enc_mov_region_grain_shift(dst, con));
 
   ins_pipe(ialu_imm);
 %}

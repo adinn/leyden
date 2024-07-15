@@ -118,6 +118,7 @@ public:
   void initialize(G1RegionToSpaceMapper* mapper);
 
   bool is_in_young(const void* p) const override;
+  address log_grain_bytes_field();
 };
 
 #endif // SHARE_GC_G1_G1CARDTABLE_HPP

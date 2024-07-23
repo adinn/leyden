@@ -71,6 +71,11 @@ public:
 
   void load_at(MacroAssembler* masm, DecoratorSet decorators, BasicType type,
                Register dst, Address src, Register tmp1, Register tmp2);
+  // the g1 barrier set marks barrier code with an AOT reloc when it
+  // genertaes code that needs to be written to cache. this method
+  // rewrites the barrier code to be consistent with the current
+  // runtime when the AOT code is reloaded from cache.
+  virtual void fix_aot_reloc(address addr, aot_Relocation::format fmt);
 };
 
 #endif // CPU_AARCH64_GC_G1_G1BARRIERSETASSEMBLER_AARCH64_HPP

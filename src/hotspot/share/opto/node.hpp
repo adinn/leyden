@@ -828,11 +828,24 @@ public:
     _last_flag                       = Flag_is_predicated_using_blend
   };
 
+  // Some nodes need to mark their instructions with a reloc when
+  // generating AOT code, allowing the instructions to be rewritten
+  // when the code is subsequently loaded from the code cache.
+  // n.b. in order for this to work the node must not be merged into
+  // another node during optimization.
+  enum AOTRelocKind {
+    aot_reloc_none = 0,
+    aot_reloc_barrier_grain_size,
+  };
+
   class PD;
 
 private:
   juint _class_id;
   juint _flags;
+  // allow a node to be marked as requiring an AOT relocation.
+  // TODO can we store this info in the flags field?
+  AOTRelocKind _aot_relockind;
 
   static juint max_flags();
 
@@ -1067,7 +1080,14 @@ public:
     return n != nullptr && n->is_IfProj() && n->in(0)->is_ParsePredicate();
   }
 
-//----------------- Optimization
+  AOTRelocKind aot_relocation() const { return _aot_relockind; }
+  bool has_aot_relocation() const { return aot_relocation() != aot_reloc_none; }
+  void set_aot_relocation(AOTRelocKind kind) {
+    assert(!has_aot_relocation(), "aot relocation already set");
+    _aot_relockind = kind;
+  }
+
+  //----------------- Optimization
 
   // Get the worst-case Type output for this Node.
   virtual const class Type *bottom_type() const;

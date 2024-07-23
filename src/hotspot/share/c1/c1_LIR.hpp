@@ -1054,6 +1054,15 @@ enum LIR_MoveKind {
   lir_move_max_flag
 };
 
+// AOT code needs to tag some instructions with a reloc kind which can
+// then be passed through to the assembler to emit a reloc.  n.b. in
+// order for this to work the node must not be merged into another
+// node during optimization.
+
+enum LIR_RelocKind {
+  lir_reloc_none = 0,
+  lir_reloc_aot_barrier_grain_size,
+};
 
 // --------------------------------------------------
 // LIR_Op
@@ -1135,11 +1144,26 @@ class LIR_Op: public CompilationResourceObj {
 
   Instruction* source() const                 { return _source; }
   void set_source(Instruction* ins)           { _source = ins; }
+  // hijack the flags field to record any necessary relocs. we can
+  // only do this for non-moves because they also use the flags field
+  void set_reloc_kind(LIR_RelocKind kind) {
+    assert (code() != lir_move, "must not be");
+    assert(kind != lir_reloc_none, "must not be");
+    _flags = kind;
+  }
+  LIR_RelocKind get_reloc_kind() const {
+    if (code() == lir_move) {
+      return lir_reloc_none;
+    } else {
+      return (LIR_RelocKind)_flags;
+    }
+  }
+  bool is_relocatable() const { return get_reloc_kind() != lir_reloc_none; }
 
   virtual void emit_code(LIR_Assembler* masm) = 0;
   virtual void print_instr(outputStream* out) const   = 0;
   virtual void print_on(outputStream* st) const PRODUCT_RETURN;
-
+  
   virtual bool is_patching() { return false; }
   virtual LIR_OpCall* as_OpCall() { return nullptr; }
   virtual LIR_OpJavaCall* as_OpJavaCall() { return nullptr; }
@@ -2332,11 +2356,11 @@ class LIR_List: public CompilationResourceObj {
 
   void shift_left(LIR_Opr value, LIR_Opr count, LIR_Opr dst, LIR_Opr tmp);
   void shift_right(LIR_Opr value, LIR_Opr count, LIR_Opr dst, LIR_Opr tmp);
-  void unsigned_shift_right(LIR_Opr value, LIR_Opr count, LIR_Opr dst, LIR_Opr tmp);
+  void unsigned_shift_right(LIR_Opr value, LIR_Opr count, LIR_Opr dst, LIR_Opr tmp, LIR_RelocKind relocKind = lir_reloc_none);
 
   void shift_left(LIR_Opr value, int count, LIR_Opr dst)       { shift_left(value, LIR_OprFact::intConst(count), dst, LIR_OprFact::illegalOpr); }
   void shift_right(LIR_Opr value, int count, LIR_Opr dst)      { shift_right(value, LIR_OprFact::intConst(count), dst, LIR_OprFact::illegalOpr); }
-  void unsigned_shift_right(LIR_Opr value, int count, LIR_Opr dst) { unsigned_shift_right(value, LIR_OprFact::intConst(count), dst, LIR_OprFact::illegalOpr); }
+  void unsigned_shift_right(LIR_Opr value, int count, LIR_Opr dst, LIR_RelocKind relocKind = lir_reloc_none) { unsigned_shift_right(value, LIR_OprFact::intConst(count), dst, LIR_OprFact::illegalOpr, relocKind); }
 
   void lcmp2int(LIR_Opr left, LIR_Opr right, LIR_Opr dst)        { append(new LIR_Op2(lir_cmp_l2i,  left, right, dst)); }
   void fcmp2int(LIR_Opr left, LIR_Opr right, LIR_Opr dst, bool is_unordered_less);

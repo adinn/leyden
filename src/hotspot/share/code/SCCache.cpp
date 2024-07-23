@@ -1922,6 +1922,9 @@ bool SCCReader::read_relocations(CodeBuffer* buffer, CodeBuffer* orig_buffer,
           break;
         case relocInfo::entry_guard_type:
           break;
+        case relocInfo::aot_type:
+          iter.reloc()->fix_relocation_after_move(orig_buffer, buffer);
+          break;
         default:
           fatal("relocation %d unimplemented", (int)iter.type());
           break;
@@ -2158,6 +2161,8 @@ bool SCCache::write_relocations(CodeBuffer* buffer, uint& all_reloc_size) {
         case relocInfo::post_call_nop_type:
           break;
         case relocInfo::entry_guard_type:
+          break;
+        case relocInfo::aot_type:
           break;
         default:
           fatal("relocation %d unimplemented", (int)iter.type());

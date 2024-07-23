@@ -301,6 +301,9 @@ void LIR_Assembler::emit_lir_list(LIR_List* list) {
     }
 #endif /* PRODUCT */
 
+    if (op->is_relocatable()) {
+      relocate(op);
+    }
     op->emit_code(this);
 
     if (compilation()->debug_info_recorder()->recording_non_safepoints()) {
@@ -312,6 +315,27 @@ void LIR_Assembler::emit_lir_list(LIR_List* list) {
       _masm->code()->decode();
     }
 #endif /* PRODUCT */
+  }
+}
+
+void LIR_Assembler::relocate(LIR_Op* op) {
+  // mark the next instruction or instruction sequence with an AOT
+  // relocation so it can be rewritten when the buffer is loaded from
+  // the code cache.
+  LIR_RelocKind relocKind = op->get_reloc_kind();
+  // we must have a reloc -- strictly we only expect AOT relocs
+  assert(relocKind != lir_reloc_none, "cannot aot relocate kind aot_reloc_none");
+  switch (op->code()) {
+  case lir_ushr:
+    // at the moment we only expect relocs for shifts that translate
+    // an address into a region index
+    {
+      assert(relocKind == lir_reloc_aot_barrier_grain_size, "invalid reloc kind for aot  reloc");
+      _masm->code_section()->relocate(_masm->pc(), aot_Relocation::spec(), aot_Relocation::G1BarrierGrainSizeImmediate);
+    }
+    break;
+  default:
+    ShouldNotReachHere();
   }
 }
 

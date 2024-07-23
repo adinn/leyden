@@ -207,9 +207,19 @@ void G1BarrierSetAssembler::g1_write_barrier_post(MacroAssembler* masm,
   // Does store cross heap regions?
 
   __ eor(tmp1, store_addr, new_val);
+#if INCLUDE_CDS
+  // AOT code needs to mark the shift with a reloc so the shift count
+  // can be updated when the code is reloaded
+  if (StoreCachedCode) {
+    __ relocate(aot_Relocation::spec(),
+                aot_Relocation::G1BarrierGrainSizeImmediate);
+  } else {
+#endif
   __ lsr(tmp1, tmp1, G1HeapRegion::LogOfHRGrainBytes);
   __ cbz(tmp1, done);
-
+#if INCLUDE_CDS
+  }
+#endif
   // crosses regions, storing null?
 
   __ cbz(new_val, done);
@@ -485,3 +495,14 @@ void G1BarrierSetAssembler::generate_c1_post_barrier_runtime_stub(StubAssembler*
 #undef __
 
 #endif // COMPILER1
+
+// Patch g1 barrier instructions in AOT code when the code is reloaded
+// from the code cache.
+
+void G1BarrierSetAssembler::fix_aot_reloc(address addr, aot_Relocation::format fmt) {
+  assert(fmt == aot_Relocation::G1BarrierGrainSizeImmediate, "unexpected AOT relocation for G1 barrier");
+  // patch a native shift instruction to use the current grain size
+  NativeRightShiftImmediate* ns = nativeRightShiftImmediate_at(addr);
+  assert(ns != nullptr, "invalid instruction for G1BarrierGrainSizeImmediate AOT reloc");
+  ns->aot_patch((uint32_t)G1HeapRegion::LogOfHRGrainBytes);
+}

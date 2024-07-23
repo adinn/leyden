@@ -271,6 +271,7 @@ class relocInfo {
     post_call_nop_type      = 16, // A tag for post call nop relocations
     entry_guard_type        = 17, // A tag for an nmethod entry barrier guard value
     barrier_type            = 18, // GC barrier data
+    aot_type                = 19, // AOT-specific relocations
     type_mask               = 31  // A mask which selects only the above values
   };
 
@@ -313,6 +314,7 @@ class relocInfo {
     visitor(post_call_nop) \
     visitor(entry_guard) \
     visitor(barrier) \
+    visitor(aot) \
 
 
  public:
@@ -1070,6 +1072,31 @@ class barrier_Relocation : public Relocation {
   friend class RelocIterator;
   friend class RelocationHolder;
   barrier_Relocation() : Relocation(relocInfo::barrier_type) { }
+};
+
+
+class aot_Relocation : public Relocation {
+  // this class rewrites instructions or constants embedded in nmethod
+  // or stub routines when the corresponding code is reloaded from the
+  // CDS code cache. The specific details of what to rewrite and how
+  // is determined by the format type supplied at reloc create time.
+ public:
+  static RelocationHolder spec() {
+    return RelocationHolder::construct<aot_Relocation>();
+  }
+
+  enum format {
+    // reloc marks a G1 barrier right shift count immediate operand
+    G1BarrierGrainSizeImmediate,
+  };
+  void copy_into(RelocationHolder& holder) const override;
+
+  virtual void fix_relocation_after_move(const CodeBuffer* src, CodeBuffer* dest);
+
+ private:
+  friend class RelocIterator;
+  friend class RelocationHolder;
+  aot_Relocation() : Relocation(relocInfo::aot_type) { }
 };
 
 

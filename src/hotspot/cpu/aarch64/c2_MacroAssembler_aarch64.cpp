@@ -2494,3 +2494,7 @@ bool C2_MacroAssembler::in_scratch_emit_size() {
   }
   return MacroAssembler::in_scratch_emit_size();
 }
+
+void C2_MacroAssembler::aot_relocate(aot_Relocation::format fmt) {
+  code_section()->relocate(pc(), aot_Relocation::spec(), fmt);
+}

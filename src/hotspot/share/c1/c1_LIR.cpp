@@ -29,6 +29,7 @@
 #include "c1/c1_LIRAssembler.hpp"
 #include "c1/c1_ValueStack.hpp"
 #include "ci/ciInstance.hpp"
+#include "code/relocInfo.hpp"
 #include "runtime/safepointMechanism.inline.hpp"
 #include "runtime/sharedRuntime.hpp"
 #include "runtime/vm_version.hpp"
@@ -1407,13 +1408,16 @@ void LIR_List::shift_right(LIR_Opr value, LIR_Opr count, LIR_Opr dst, LIR_Opr tm
 }
 
 
-void LIR_List::unsigned_shift_right(LIR_Opr value, LIR_Opr count, LIR_Opr dst, LIR_Opr tmp) {
- append(new LIR_Op2(
-                    lir_ushr,
-                    value,
-                    count,
-                    dst,
-                    tmp));
+void LIR_List::unsigned_shift_right(LIR_Opr value, LIR_Opr count, LIR_Opr dst, LIR_Opr tmp, LIR_RelocKind relocKind) {
+  LIR_Op2* op = new LIR_Op2(lir_ushr,
+                            value,
+                            count,
+                            dst,
+                            tmp);
+  if (relocKind != lir_reloc_none) {
+    op->set_reloc_kind(relocKind);
+  }
+  append(op);
 }
 
 void LIR_List::fcmp2int(LIR_Opr left, LIR_Opr right, LIR_Opr dst, bool is_unordered_less) {
@@ -1992,6 +1996,7 @@ void LIR_Op2::print_instr(outputStream* out) const {
   if (tmp3_opr()->is_valid()) { tmp3_opr()->print(out);    out->print(" "); }
   if (tmp4_opr()->is_valid()) { tmp4_opr()->print(out);    out->print(" "); }
   if (tmp5_opr()->is_valid()) { tmp5_opr()->print(out);    out->print(" "); }
+  if (this->is_relocatable()) { out->print("(relocatable) "); }
   result_opr()->print(out);
 }
 

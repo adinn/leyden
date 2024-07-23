@@ -36,7 +36,6 @@ protected:
                                                 Register start, Register count, Register tmp, RegSet saved_regs);
   virtual void oop_store_at(MacroAssembler* masm, DecoratorSet decorators, BasicType type,
                             Address dst, Register val, Register tmp1, Register tmp2, Register tmp3);
-
 };
 
 #endif // CPU_AARCH64_GC_SHARED_CARDTABLEBARRIERSETASSEMBLER_AARCH64_HPP

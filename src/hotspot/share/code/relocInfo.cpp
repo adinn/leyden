@@ -29,6 +29,8 @@
 #include "code/nmethod.hpp"
 #include "code/relocInfo.hpp"
 #include "code/SCCache.hpp"
+#include "gc/shared/barrierSet.hpp"
+#include "gc/shared/barrierSetAssembler.hpp"
 #include "memory/resourceArea.hpp"
 #include "memory/universe.hpp"
 #include "oops/compressedOops.inline.hpp"
@@ -784,6 +786,27 @@ address internal_word_Relocation::target() {
   }
   return target;
 }
+
+void aot_Relocation::fix_relocation_after_move(const CodeBuffer* src, CodeBuffer* dest) {
+  // only apply AOT relocs when loading cached code
+  if (!LoadCachedCode) {
+    return;
+  }
+  aot_Relocation::format fmt = ((aot_Relocation::format)format());
+  switch (fmt) {
+  case G1BarrierGrainSizeImmediate:
+    {
+      // the barrier code knows how to fix these relocs
+      BarrierSet* bs = BarrierSet::barrier_set();
+      assert(bs->is_a(BarrierSet::CardTableBarrierSet), "must be");
+      ((CardTableBarrierSet *)bs)->barrier_set_assembler()->fix_aot_reloc(addr(), fmt);
+    }
+    break;
+  default:
+    ShouldNotReachHere();
+  }
+}
+
 
 const char* relocInfo::type_name(relocInfo::relocType t) {
   switch (t) {

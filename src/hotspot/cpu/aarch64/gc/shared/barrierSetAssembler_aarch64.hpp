@@ -137,6 +137,17 @@ public:
   OptoReg::Name refine_register(const Node* node,
                                 OptoReg::Name opto_reg);
 #endif // COMPILER2
+
+  // This may be called to patch barrier instructions in AOT code that
+  // require adjustment when the code is reloaded from the code cache.
+  // Argument fmt identifies the type of AOT relocation that was used
+  // to mark the instrction at addr. Any barrier set assembler that
+  // creates AOT relocs to mark its barrir instructions must also
+  // override this method so it can patch them.
+  
+  virtual void fix_aot_reloc(address addr, aot_Relocation::format fmt) {
+    ShouldNotReachHere(); 
+  }
 };
 
 #ifdef COMPILER2

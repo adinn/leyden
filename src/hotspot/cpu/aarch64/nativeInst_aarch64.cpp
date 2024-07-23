@@ -358,6 +358,20 @@ bool NativeInstruction::is_stop() {
   return uint_at(0) == 0xd4bbd5c1; // dcps1 #0xdeae
 }
 
+bool NativeInstruction::is_unsigned_bit_field_move() {
+  uint32_t value = int_at(0);
+  return (Instruction_aarch64::extract(value, 30, 29) == 0b10 &&
+          Instruction_aarch64::extract(value, 28, 23) == 0b100110);
+}
+
+bool NativeInstruction::is_right_shift_immediate() {
+  assert(is_unsigned_bit_field_move(), "test for bit field move first!");
+  uint32_t value = uint_at(0);
+  uint32_t imms = Instruction_aarch64::extract(value, 15, 10);
+  uint32_t hi = Instruction_aarch64::extract(value, 31, 31);
+  return (hi == 1 ? imms == 0b111111 : imms == 0b011111);
+}
+
 //-------------------------------------------------------------------
 
 // MT-safe inserting of a jump over a jump or a nop (used by
@@ -482,4 +496,10 @@ void NativeDeoptInstruction::insert(address code_pos) {
   *(code_pos+2) = 0x00;
   *(code_pos+3) = 0x00;*/
   ICache::invalidate_range(code_pos, 4);
+}
+
+void NativeRightShiftImmediate::aot_patch(uint32_t immediate) {
+  assert(is_unsigned_bit_field_move() && is_right_shift_immediate(), "patchign wrong instruction");
+  // n.b. instruction cache flushing is managed by the caller.
+  Instruction_aarch64::patch(addr_at(0), 21, 16, immediate);  
 }

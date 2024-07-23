@@ -153,6 +153,7 @@ class LIR_Assembler: public CompilationResourceObj {
   void emit_code(BlockList* hir);
   void emit_block(BlockBegin* block);
   void emit_lir_list(LIR_List* list);
+  void relocate(LIR_Op* op);
 
   // any last minute peephole optimizations are performed here.  In
   // particular sparc uses this for delay slot filling.

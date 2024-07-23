@@ -48,7 +48,7 @@
 // - - NativeLdSt
 // - - NativePostCallNop
 // - - NativeDeoptInstruction
-
+// - - NativeShiftLeftImmediate
 // The base class for different kinds of native instruction abstractions.
 // Provides the primitive operations to manipulate code relative to this.
 
@@ -85,6 +85,9 @@ public:
   bool is_movk();
   bool is_sigill_not_entrant();
   bool is_stop();
+  bool is_unsigned_bit_field_move();
+  // only call this when is_unsigned_bit_field_move() ==> true
+  bool is_right_shift_immediate();
 
 protected:
   address addr_at(int offset) const { return address(this) + offset; }
@@ -593,5 +596,24 @@ class NativeDeoptInstruction: public NativeInstruction {
   // MT-safe patching
   static void insert(address code_pos);
 };
+
+class NativeRightShiftImmediate: public NativeInstruction {
+ public:
+  uint32_t get_immediate() {
+    uint32_t value = uint_at(0);
+    // shift is in immr field
+    return Instruction_aarch64::extract(value, 21, 16);
+  }
+  
+  void aot_patch(uint32_t immediate);
+};
+
+inline NativeRightShiftImmediate* nativeRightShiftImmediate_at(address address) {
+  NativeRightShiftImmediate* ns = (NativeRightShiftImmediate*) address;
+  if (ns->is_unsigned_bit_field_move() && ns->is_right_shift_immediate()) {
+    return ns;
+  }
+  return nullptr;
+}
 
 #endif // CPU_AARCH64_NATIVEINST_AARCH64_HPP

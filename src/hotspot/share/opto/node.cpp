@@ -320,6 +320,7 @@ Node::Node(uint req)
 #ifdef ASSERT
   , _parse_idx(_idx)
 #endif
+  , _aot_relockind(aot_reloc_none)
 {
   assert( req < Compile::current()->max_node_limit() - NodeLimitFudgeFactor, "Input limit exceeded" );
   debug_only( verify_construction() );
@@ -340,6 +341,7 @@ Node::Node(Node *n0)
 #ifdef ASSERT
   , _parse_idx(_idx)
 #endif
+  , _aot_relockind(aot_reloc_none)
 {
   debug_only( verify_construction() );
   NOT_PRODUCT(nodes_created++);
@@ -353,6 +355,7 @@ Node::Node(Node *n0, Node *n1)
 #ifdef ASSERT
   , _parse_idx(_idx)
 #endif
+  , _aot_relockind(aot_reloc_none)
 {
   debug_only( verify_construction() );
   NOT_PRODUCT(nodes_created++);
@@ -368,6 +371,7 @@ Node::Node(Node *n0, Node *n1, Node *n2)
 #ifdef ASSERT
   , _parse_idx(_idx)
 #endif
+  , _aot_relockind(aot_reloc_none)
 {
   debug_only( verify_construction() );
   NOT_PRODUCT(nodes_created++);
@@ -385,6 +389,7 @@ Node::Node(Node *n0, Node *n1, Node *n2, Node *n3)
 #ifdef ASSERT
   , _parse_idx(_idx)
 #endif
+  , _aot_relockind(aot_reloc_none)
 {
   debug_only( verify_construction() );
   NOT_PRODUCT(nodes_created++);
@@ -404,6 +409,7 @@ Node::Node(Node *n0, Node *n1, Node *n2, Node *n3, Node *n4)
 #ifdef ASSERT
   , _parse_idx(_idx)
 #endif
+  , _aot_relockind(aot_reloc_none)
 {
   debug_only( verify_construction() );
   NOT_PRODUCT(nodes_created++);
@@ -425,6 +431,7 @@ Node::Node(Node *n0, Node *n1, Node *n2, Node *n3,
   : _idx(Init(6))
 #ifdef ASSERT
   , _parse_idx(_idx)
+  , _aot_relockind(aot_reloc_none)
 #endif
 {
   debug_only( verify_construction() );
@@ -450,6 +457,7 @@ Node::Node(Node *n0, Node *n1, Node *n2, Node *n3,
 #ifdef ASSERT
   , _parse_idx(_idx)
 #endif
+  , _aot_relockind(aot_reloc_none)
 {
   debug_only( verify_construction() );
   NOT_PRODUCT(nodes_created++);
